@@ -1,0 +1,76 @@
+My-Robo Chatbot using Flask Application Documentation
+The code represents a Flask application that utilizes several libraries and components for various functionalities. The application provides a web interface for user registration, login, and interaction with an AIML (Artificial Intelligence Markup Language) chatbot. It also integrates with a Neo4j graph database for storing user information and relationships, and uses Prolog for saving and inferring facts.
+Libraries and Dependencies Used
+1.	Flask: A web framework used for building the application.
+2.	aiml: A library for parsing and processing AIML files, which are used to define chatbot responses and behavior.
+3.	py2neo: A library for interacting with Neo4j graph databases.
+4.	NLTK (Natural Language Toolkit): A library for natural language processing tasks such as tokenization, lemmatization, and stopwords removal.
+5.	requests: A library for making HTTP requests to external sources.
+6.	BeautifulSoup: A library for parsing HTML and XML documents. We are using this for web-scrapping
+7.	Pytholog: A library for interfacing Python with SWI-Prolog, enabling Prolog functionality in the application.
+ 
+ 
+Application Structure
+The Flask application consists of the following files and directories:
+1.	app.py: The main Python script that defines the Flask application and its routes.
+2.	templates/: A directory containing HTML templates used for rendering the web pages.
+3.	std-startup.xml: An AIML file that contains the initial knowledge for the chatbot.
+ 
+Functionality
+1.	User Registration and Login:
+•	The /register route displays a user registration form where users can sign up by providing a username, email, and password. Upon submission, the form data is processed in the process_registration() function, and the user's details are stored in the Neo4j graph database.
+•	The /login route displays a login form where users can enter their email and password. The process_login() function validates the credentials by querying the Neo4j database, and if successful, redirects the user to the /index route.
+
+ 
+ 
+ 
+2.	Chatbot Interaction:
+•	The /index route displays the main page of the application, where users can interact with the AIML chatbot. User input is sent to the process() function, which passes the input to the AIML kernel for processing and generates a response. The response is then returned to the HTML page for display.
+•	The check_condition() function checks for specific user input patterns and performs corresponding actions. For example, it handles user input related to name, gender, age, location, relationships, and Wikipedia search. It updates the Neo4j graph database, generates Prolog facts, and performs inference using Prolog rules
+ 
+3.	Guest Interaction:
+•	The /guest route provides a simplified version of the chatbot interaction for guests. It follows a similar flow as the /index route but uses the process_guest() function for processing user input.
+ 
+4.	Neo4j Integration:
+•	The application uses the py2neo library to connect to a Neo4j graph database. It creates and retrieves nodes representing users and objects and creates relationships between nodes based on user input.
+•	The create_node() function creates a node representing a person in the Neo4j database.
+•	The create_obj_node() function creates a node representing an object in the Neo4j database.
+•	The create_relationship() function creates a relationship between two person nodes in the Neo4j database based on their relationship type.
+•	The update_node_properties() function updates properties of a node in the Neo4j database.
+ 
+5.	Prolog Integration:
+•	The PySwip library is used to interface Python with SWI-Prolog, enabling Prolog functionality in the application.
+•	The generate_prolog_facts() function retrieves user information from the Neo4j database and generates Prolog facts in a separate file named facts.pl.
+•	The run_prolog_inference() function invokes Prolog to perform inference based on the generated facts and predefined Prolog rules. The inferred results are then used to generate appropriate responses for the chatbot.
+ 
+6.	Machine Learing Integration:
+•	We are using machine learning algorithm to aquire gender
+•	When we register ourselves it matches username ad automatically add gender in neo4j of that user using update_node_properties() 
+ 
+ 
+7.	The check_condition() function analyzes the user's input and performs different actions based on specific conditions. Here's a breakdown of each if statement and its corresponding code::
+ 
+
+•	Check for "my name": If the user input contains the phrase "my name," the code retrieves the value of the predicate "person" from the Prolog kernel using kernel.getPredicate("person"). It then calls the create_node() function with the retrieved person value as an argument. Finally, the person value is printed.
+ 
+ 
+•	Check for "is my": If the user input contains the phrase "is my," the code retrieves the values of the predicates "person1," "person2," and "relationship" using kernel.getPredicate(). It calls the create_node() function with the person1 value as an argument and prints the person1 and person2 values. It then calls the create_relationship() function with the person1, relationship, and person2 values. Next, a Prolog fact is constructed using the retrieved values and stored in the "pytholog_knowledgeBase.pl" file. The Prolog fact follows the format: relation(person1, person2). 
+•	Check for "male" and "fe": If the user input contains both "male" and "fe" (likely referring to "female"), the code retrieves the value of the "person" predicate and constructs a Prolog fact indicating that the person is female. The Prolog fact is then appended to the "pytholog_knowledgeBase.pl" file. Additionally, a dictionary called new_properties is created with the key "gender" and the value "female." The update_node_properties() function is called to update the properties of the "Person" node with the retrieved person name and the new_properties dictionary.
+•	Check for "male": If the user input contains the word "male," similar to the previous case, a Prolog fact is constructed to indicate that the person is male and appended to the "pytholog_knowledgeBase.pl" file. Similarly, a dictionary called new_properties is created with the key "gender" and the value "male," and the update_node_properties() function is called to update the properties of the "Person" node.
+ 
+ 
+•	Check for "my age": If the user input contains the phrase "my age," the code retrieves the values of the predicates "add_age" and "person" using kernel.getPredicate(). A dictionary called new_properties is created with the key "age" and the retrieved age as the value. The update_node_properties() function is called to update the properties of the "Person" node with the retrieved person name and the new_properties dictionary.
+ 
+•	Check for "i live": If the user input contains the phrase "i live," the code retrieves the values of the predicates "add_location" and "person" using kernel.getPredicate(). A dictionary called new_properties is created with the key "location" and the retrieved location as the value. The update_node_properties() function is called to update the properties of the "Person" node with the retrieved person name and the new_properties dictionary.
+ 
+ 
+•	Check for "like": If the user input contains the word "like," the code retrieves the values of the predicates "person," "relationship," and "object" using kernel.getPredicate(). It calls the create_obj_node() function with the retrieved object name as an argument and then calls the create_relationship() function with the person, relationship, and object values.
+•	Check for "who": If the user input contains the word "who," the code retrieves the values of the predicates "who1" and "who2" using kernel.getPredicate(). It prints the values of search1 and search2. It concatenates search2 and search2 to form the fullname. The spaces in the fullname are replaced with underscores, creating a new string called "enter." The code constructs a Wikipedia URL based on the "enter" value and sends a GET request to retrieve the HTML content of the corresponding Wikipedia page. The code then parses the HTML content using BeautifulSoup and extracts the text from the second paragraph ("find_all('p')[1].text"). The extracted text is stored in the variable "soup" and then the text is stored in response and it is then returned as a response to html file and the it is displayed in the chatbox as bot-text
+ 
+8.	Things to be added in this project and problems facing
+•	When you log in setPridicate is not working
+•	Not saving Previous chat
+•	it does go to condition when user_input has "who" in it and webscrapping is not working
+•	In login-mode-of-chatbot username does not appear
+•	Not using nltk for conditions
+
